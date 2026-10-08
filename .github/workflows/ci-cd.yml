@@ -1,0 +1,39 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:             
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Lint HTML
+        run: npx htmlhint "**/*.html"
+
+      - name: Lint API (JavaScript)
+        run: npx eslint "api/index.js" || true
+
+      - name: Lint Dockerfiles
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: web/Dockerfile
+
+      - name: Armar carpeta del sitio web
+        run: |
+          mkdir _site
+          cp index.html libro-de-visitas.js _site/
+          # Si creaste un estilos.css, cambia la línea de arriba por: cp index.html libro-de-visitas.js estilos.css _site/
+
+      - name: Subir artefacto para GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./_site
