@@ -49,11 +49,11 @@ jobs:
         with:
           node-version: 20
 
-      - name: Descargar artefacto del sitio web
-        uses: actions/download-artifact@v4
-        with:
-          name: github-pages
-          path: _site
+      # REEMPLAZAMOS LA DESCARGA DEL ARTEFACTO POR ESTO:
+      - name: Armar carpeta del sitio web para pruebas
+        run: |
+          mkdir _site
+          cp index.html libro-de-visitas.js _site/
 
       - name: Instalar dependencias
         run: npm ci
