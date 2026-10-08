@@ -31,9 +31,32 @@ jobs:
         run: |
           mkdir _site
           cp index.html libro-de-visitas.js _site/
-          # Si creaste un estilos.css, cambia la línea de arriba por: cp index.html libro-de-visitas.js estilos.css _site/
 
       - name: Subir artefacto para GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./_site
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Descargar artefacto del sitio web
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: _site
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Correr pruebas de Vitest
+        run: npm test
