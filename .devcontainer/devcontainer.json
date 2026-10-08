@@ -1,0 +1,16 @@
+{
+  "name": "Perfil con Backend",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "postCreateCommand": "echo 'DB_PASSWORD=temporal123' > .env",
+  "postStartCommand": "docker compose up -d --wait",
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": {
+      "label": "Web",
+      "onAutoForward": "openPreview"
+    }
+  }
+}
