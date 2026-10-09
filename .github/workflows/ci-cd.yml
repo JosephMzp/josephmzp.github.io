@@ -64,12 +64,18 @@ jobs:
         run: docker compose up -d --wait
       - name: Pruebas de contrato de la API
         run: |
+          echo "Esperando 15 segundos a que la BD inicie..."
+          sleep 15
+      
           echo "GET /api/health..."
           if [ "$(curl -s -w "%{http_code}" -o /dev/null http://localhost:8080/api/health)" != "200" ]; then exit 1; fi
+      
           echo "POST inválido (sin nombre)..."
           if [ "$(curl -s -X POST http://localhost:8080/api/mensajes -H 'Content-Type: application/json' -d '{"nombre":""}' -w '%{http_code}' -o /dev/null)" != "400" ]; then exit 1; fi
+      
           echo "POST válido..."
           if [ "$(curl -s -X POST http://localhost:8080/api/mensajes -H 'Content-Type: application/json' -d '{"nombre":"Joseph","mensaje":"Prueba"}' -w '%{http_code}' -o /dev/null)" != "201" ]; then exit 1; fi
+      
           echo "GET /api/mensajes..."
           if [[ "$(curl -s http://localhost:8080/api/mensajes)" != *"Prueba"* ]]; then exit 1; fi
       - name: Mostrar logs si algo falla
