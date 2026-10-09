@@ -28,7 +28,7 @@ jobs:
           mkdir _site
           cp index.html libro-de-visitas.js _site/
       - name: Subir artefacto para GitHub Pages
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ./_site
 
