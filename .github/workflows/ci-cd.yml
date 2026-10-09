@@ -15,23 +15,18 @@ jobs:
     steps: 
       - name: Descargar código
         uses: actions/checkout@v4
-
       - name: Lint HTML
         run: npx htmlhint "**/*.html"
-
       - name: Lint API
         run: npx eslint "api/index.js" || true
-
       - name: Lint Dockerfiles
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: web/Dockerfile
-
       - name: Armar carpeta del sitio web
         run: |
           mkdir _site
           cp index.html libro-de-visitas.js _site/
-
       - name: Subir artefacto para GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
@@ -43,26 +38,46 @@ jobs:
     steps:
       - name: Descargar código
         uses: actions/checkout@v4
-
-      - name: Configurar Node.js con caché (Reto 1)
+      - name: Configurar Node.js con caché
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
-
       - name: Armar carpeta del sitio web para pruebas
         run: |
           mkdir _site
           cp index.html libro-de-visitas.js _site/
-
       - name: Instalar dependencias
         run: npm ci
-
       - name: Correr pruebas de Vitest
         run: npm test
 
+  integration-compose:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+      - name: Crear .env temporal para Compose (Reto 3)
+        run: echo "DB_PASSWORD=secreto123" > .env
+      - name: Levantar servicios con Compose
+        run: docker compose up -d --wait
+      - name: Pruebas de contrato de la API
+        run: |
+          echo "GET /api/health..."
+          if [ "$(curl -s -w "%{http_code}" -o /dev/null http://localhost:8080/api/health)" != "200" ]; then exit 1; fi
+          echo "POST inválido (sin nombre)..."
+          if [ "$(curl -s -X POST http://localhost:8080/api/mensajes -H 'Content-Type: application/json' -d '{"nombre":""}' -w '%{http_code}' -o /dev/null)" != "400" ]; then exit 1; fi
+          echo "POST válido..."
+          if [ "$(curl -s -X POST http://localhost:8080/api/mensajes -H 'Content-Type: application/json' -d '{"nombre":"Joseph","mensaje":"Prueba"}' -w '%{http_code}' -o /dev/null)" != "201" ]; then exit 1; fi
+          echo "GET /api/mensajes..."
+          if [[ "$(curl -s http://localhost:8080/api/mensajes)" != *"Prueba"* ]]; then exit 1; fi
+      - name: Mostrar logs si algo falla
+        if: failure()
+        run: docker compose logs
+
   package:
-    needs: test
+    needs: [test, integration-compose]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -70,21 +85,18 @@ jobs:
     steps:
       - name: Descargar código
         uses: actions/checkout@v4
-
       - name: Iniciar sesión en GitHub Packages
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Generar etiquetas Web
         id: meta-web
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/josephmzp/perfil-web
           tags: type=sha,prefix=sha-,format=short
-
       - name: Construir y subir imagen Web
         uses: docker/build-push-action@v5
         with:
@@ -93,14 +105,12 @@ jobs:
           push: true
           tags: ${{ steps.meta-web.outputs.tags }}
           labels: ${{ steps.meta-web.outputs.labels }}
-
       - name: Generar etiquetas API
         id: meta-api
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/josephmzp/perfil-api
           tags: type=sha,prefix=sha-,format=short
-
       - name: Construir y subir imagen API
         uses: docker/build-push-action@v5
         with:
@@ -113,9 +123,33 @@ jobs:
   security:
     needs: package
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
       - name: Obtener SHA corto
         run: echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+
+      - name: Análisis SAST con Semgrep (Reto 2)
+        run: docker run --rm -v "${{ github.workspace }}:/src" returntocorp/semgrep semgrep scan --config auto --sarif --output semgrep.sarif /src || true
+      - name: Subir SAST a Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: semgrep.sarif
+
+      - name: Generar SARIF de Trivy (Reto 2)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ghcr.io/josephmzp/perfil-api:sha-${{ env.SHORT_SHA }}
+          format: 'sarif'
+          output: 'trivy.sarif'
+          ignore-unfixed: true
+      - name: Subir Trivy a Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy.sarif
 
       - name: Escanear imagen Web con Trivy
         uses: aquasecurity/trivy-action@master
@@ -126,12 +160,6 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL'
-
-      - name: Resumen de Trivy Web (Reto 6)
-        run: |
-          echo "### Resultado Escaneo Web" >> $GITHUB_STEP_SUMMARY
-          echo "Escaneo completado sin vulnerabilidades críticas." >> $GITHUB_STEP_SUMMARY
-
       - name: Escanear imagen API con Trivy
         uses: aquasecurity/trivy-action@master
         with:
@@ -148,25 +176,20 @@ jobs:
     steps:
       - name: Obtener SHA corto
         run: echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
-
       - name: Iniciar sesión en GitHub Packages
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Levantar contenedor web
         run: |
           docker run -d -p 8080:8080 --name web --add-host api:127.0.0.1 ghcr.io/josephmzp/perfil-web:sha-${{ env.SHORT_SHA }}
           sleep 5
-
       - name: Verificar que responde
         run: |
           RESULT=$(curl -s http://localhost:8080/)
-          if [[ "$RESULT" != *"Joseph Miguel Zavaleta Polo"* ]]; then
-            exit 1
-          fi
+          if [[ "$RESULT" != *"Joseph Miguel Zavaleta Polo"* ]]; then exit 1; fi
 
   deploy-prod:
     needs: smoke
@@ -182,13 +205,8 @@ jobs:
       - name: Desplegar a GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
       - name: Revisar producción (Reto 5)
         run: |
           sleep 10
           RESULT=$(curl -s ${{ steps.deployment.outputs.page_url }})
-          if [[ "$RESULT" != *"Joseph Miguel Zavaleta Polo"* ]]; then
-            echo "Error: La página en producción no muestra el nombre correctamente."
-            exit 1
-          fi
-          echo "Despliegue a producción verificado correctamente."
+          if [[ "$RESULT" != *"Joseph Miguel Zavaleta Polo"* ]]; then exit 1; fi

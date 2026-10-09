@@ -29,6 +29,16 @@ Para pasar a Continuous Deployment, quitaría la regla de "Required reviewers" e
 - **Alternativas que evalué:** Caché manual con `actions/cache`.
 - **Por qué elegí esta:** La opción integrada en `setup-node` es nativa y requiere una sola línea de código.
 
+### Reto 2: SAST y resultados a la vista
+- **Decisión:** Agregué Semgrep ejecutándolo mediante Docker en el job `security` y subí el reporte en formato SARIF a GitHub Code Scanning. También agregué un archivo `.trivyignore`.
+- **Alternativas que evalué:** Usar CodeQL nativo de GitHub.
+- **Por qué elegí esta:** Semgrep corre más rápido usando un contenedor Docker en una sola línea y sube los resultados al instante.
+
+### Reto 3: Pruebas de integración con Compose
+- **Decisión:** Creé un nuevo job llamado `integration-compose` que genera un archivo `.env` temporal, levanta los servicios con `docker compose up -d --wait` y lanza pruebas de contrato (200, 400 y 201) a la API usando `curl`.
+- **Alternativas que evalué:** Escribir un script con Vitest y la API `fetch`.
+- **Por qué elegí esta:** Bash y `curl` son directos, verifican el tráfico de red real de NGINX hacia la API, y usando `if: failure()` muestro los logs de los contenedores automáticamente.
+
 ### Reto 4: Mínimo privilegio y cadena de suministro
 - **Decisión:** Creé un archivo `.github/dependabot.yml` para mantener las acciones actualizadas.
 - **Alternativas que evalué:** Actualizar manualmente.
