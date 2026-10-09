@@ -98,7 +98,7 @@ jobs:
           images: ghcr.io/josephmzp/perfil-web
           tags: type=sha,prefix=sha-,format=short
       - name: Construir y subir imagen Web
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: web/Dockerfile
@@ -112,7 +112,7 @@ jobs:
           images: ghcr.io/josephmzp/perfil-api
           tags: type=sha,prefix=sha-,format=short
       - name: Construir y subir imagen API
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ./api
           file: api/Dockerfile
