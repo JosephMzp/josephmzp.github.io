@@ -93,7 +93,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Generar etiquetas Web
         id: meta-web
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/josephmzp/perfil-web
           tags: type=sha,prefix=sha-,format=short
@@ -107,7 +107,7 @@ jobs:
           labels: ${{ steps.meta-web.outputs.labels }}
       - name: Generar etiquetas API
         id: meta-api
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/josephmzp/perfil-api
           tags: type=sha,prefix=sha-,format=short
