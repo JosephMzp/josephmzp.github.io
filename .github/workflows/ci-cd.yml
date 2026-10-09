@@ -49,7 +49,6 @@ jobs:
         with:
           node-version: 20
 
-      # REEMPLAZAMOS LA DESCARGA DEL ARTEFACTO POR ESTO:
       - name: Armar carpeta del sitio web para pruebas
         run: |
           mkdir _site
@@ -120,7 +119,7 @@ jobs:
       - name: Escanear imagen Web con Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ghcr.io/josephmzp/perfil-web:sha-${{ env.SHORT_SHA }}
+          image-ref: ghcr.io/${{ github.repository_owner }}/perfil-web:sha-${{ env.SHORT_SHA }}
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
@@ -130,7 +129,7 @@ jobs:
       - name: Escanear imagen API con Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ghcr.io/josephmzp/perfil-api:sha-${{ env.SHORT_SHA }}
+          image-ref: ghcr.io/${{ github.repository_owner }}/perfil-api:sha-${{ env.SHORT_SHA }}
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
@@ -153,7 +152,7 @@ jobs:
 
       - name: Levantar contenedor web
         run: |
-          docker run -d -p 8080:8080 --name web ghcr.io/josephmzp/perfil-web:sha-${{ env.SHORT_SHA }}
+          docker run -d -p 8080:8080 --name web --add-host api:127.0.0.1 ghcr.io/${{ github.repository_owner }}/perfil-web:sha-${{ env.SHORT_SHA }}
           sleep 5
 
       - name: Verificar que responde y tiene mi nombre
@@ -164,3 +163,18 @@ jobs:
             exit 1
           fi
           echo "Smoke test exitoso. Todo en orden."
+
+  deploy-prod:
+    needs: smoke
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Desplegar a GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
