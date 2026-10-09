@@ -204,7 +204,7 @@ jobs:
     steps:
       - name: Desplegar a GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
       - name: Revisar producción (Reto 5)
         run: |
           sleep 10
