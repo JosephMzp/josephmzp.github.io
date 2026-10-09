@@ -1,8 +1,4 @@
-FROM node:22-alpine
-WORKDIR /app
-COPY package.json ./
-RUN npm install
-COPY . .
-USER node
-EXPOSE 3000
-CMD ["node", "index.js"]
+FROM nginx:alpine
+COPY web/nginx.conf /etc/nginx/conf.d/default.conf
+COPY _site /usr/share/nginx/html
+EXPOSE 8080
