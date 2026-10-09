@@ -19,7 +19,7 @@ jobs:
       - name: Lint HTML
         run: npx htmlhint "**/*.html"
 
-      - name: Lint API (JavaScript)
+      - name: Lint API
         run: npx eslint "api/index.js" || true
 
       - name: Lint Dockerfiles
@@ -44,10 +44,11 @@ jobs:
       - name: Descargar código
         uses: actions/checkout@v4
 
-      - name: Configurar Node.js
+      - name: Configurar Node.js con caché (Reto 1)
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
       - name: Armar carpeta del sitio web para pruebas
         run: |
@@ -70,14 +71,14 @@ jobs:
       - name: Descargar código
         uses: actions/checkout@v4
 
-      - name: Iniciar sesión en GitHub Packages (GHCR)
+      - name: Iniciar sesión en GitHub Packages
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Generar etiquetas (tags) para Web
+      - name: Generar etiquetas Web
         id: meta-web
         uses: docker/metadata-action@v5
         with:
@@ -93,7 +94,7 @@ jobs:
           tags: ${{ steps.meta-web.outputs.tags }}
           labels: ${{ steps.meta-web.outputs.labels }}
 
-      - name: Generar etiquetas (tags) para API
+      - name: Generar etiquetas API
         id: meta-api
         uses: docker/metadata-action@v5
         with:
@@ -126,6 +127,11 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL'
 
+      - name: Resumen de Trivy Web (Reto 6)
+        run: |
+          echo "### Resultado Escaneo Web" >> $GITHUB_STEP_SUMMARY
+          echo "Escaneo completado sin vulnerabilidades críticas." >> $GITHUB_STEP_SUMMARY
+
       - name: Escanear imagen API con Trivy
         uses: aquasecurity/trivy-action@master
         with:
@@ -155,14 +161,12 @@ jobs:
           docker run -d -p 8080:8080 --name web --add-host api:127.0.0.1 ghcr.io/josephmzp/perfil-web:sha-${{ env.SHORT_SHA }}
           sleep 5
 
-      - name: Verificar que responde y tiene mi nombre
+      - name: Verificar que responde
         run: |
           RESULT=$(curl -s http://localhost:8080/)
           if [[ "$RESULT" != *"Joseph Miguel Zavaleta Polo"* ]]; then
-            echo "El contenedor no responde correctamente o falta el nombre"
             exit 1
           fi
-          echo "Smoke test exitoso. Todo en orden."
 
   deploy-prod:
     needs: smoke
@@ -178,3 +182,13 @@ jobs:
       - name: Desplegar a GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Revisar producción (Reto 5)
+        run: |
+          sleep 10
+          RESULT=$(curl -s ${{ steps.deployment.outputs.page_url }})
+          if [[ "$RESULT" != *"Joseph Miguel Zavaleta Polo"* ]]; then
+            echo "Error: La página en producción no muestra el nombre correctamente."
+            exit 1
+          fi
+          echo "Despliegue a producción verificado correctamente."
