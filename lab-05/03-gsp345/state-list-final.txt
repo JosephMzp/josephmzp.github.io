@@ -1,0 +1,7 @@
+google_compute_firewall.tf-firewall
+module.instances.google_compute_instance.tf_instance_1
+module.instances.google_compute_instance.tf_instance_2
+module.storage.google_storage_bucket.bucket
+module.network.module.subnets.google_compute_subnetwork.subnetwork["us-east1/subnet-01"]
+module.network.module.subnets.google_compute_subnetwork.subnetwork["us-east1/subnet-02"]
+module.network.module.vpc.google_compute_network.network

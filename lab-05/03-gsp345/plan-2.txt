@@ -1,0 +1,177 @@
+module.instances.google_compute_instance.tf_instance_1: Refreshing state... [id=projects/qwiklabs-gcp-04-f85f86e7e3ad/zones/us-east1-c/instances/tf-instance-1]
+module.instances.google_compute_instance.tf_instance_2: Refreshing state... [id=projects/qwiklabs-gcp-04-f85f86e7e3ad/zones/us-east1-c/instances/tf-instance-2]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+-/+ destroy and then create replacement
+
+Terraform will perform the following actions:
+
+  # module.instances.google_compute_instance.tf_instance_1 must be replaced
+-/+ resource "google_compute_instance" "tf_instance_1" {
+      + allow_stopping_for_update = true
+      ~ cpu_platform              = "Intel Broadwell" -> (known after apply)
+      ~ current_status            = "RUNNING" -> (known after apply)
+      - enable_display            = false -> null
+      ~ guest_accelerator         = [] -> (known after apply)
+      ~ id                        = "projects/qwiklabs-gcp-04-f85f86e7e3ad/zones/us-east1-c/instances/tf-instance-1" -> (known after apply)
+      ~ instance_id               = "5947933880056060337" -> (known after apply)
+      ~ label_fingerprint         = "vezUS-42LLM=" -> (known after apply)
+      - labels                    = {
+          - "goog-terraform-provisioned" = "true"
+        } -> null
+      - metadata                  = {
+          - "startup-script" = <<-EOT
+                #!/bin/bash
+            EOT
+        } -> null
+      ~ metadata_fingerprint      = "IFX76KD36V0=" -> (known after apply)
+      + min_cpu_platform          = (known after apply)
+        name                      = "tf-instance-1"
+      ~ project                   = "qwiklabs-gcp-04-f85f86e7e3ad" -> (known after apply)
+      - resource_policies         = [] -> null
+      ~ self_link                 = "https://www.googleapis.com/compute/v1/projects/qwiklabs-gcp-04-f85f86e7e3ad/zones/us-east1-c/instances/tf-instance-1" -> (known after apply)
+      - tags                      = [] -> null
+      ~ tags_fingerprint          = "42WmSpB8rSM=" -> (known after apply)
+        # (6 unchanged attributes hidden)
+
+      ~ boot_disk {
+          ~ device_name                = "persistent-disk-0" -> (known after apply)
+          + disk_encryption_key_sha256 = (known after apply)
+          + kms_key_self_link          = (known after apply)
+          ~ source                     = "https://www.googleapis.com/compute/v1/projects/qwiklabs-gcp-04-f85f86e7e3ad/zones/us-east1-c/disks/tf-instance-1" -> (known after apply)
+            # (3 unchanged attributes hidden)
+
+          ~ initialize_params {
+              ~ image                 = "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-12-bookworm-v20261102" -> "debian-cloud/debian-11" # forces replacement
+              ~ labels                = {} -> (known after apply)
+              - resource_manager_tags = {} -> null
+              ~ size                  = 10 -> (known after apply)
+              ~ type                  = "pd-standard" -> (known after apply)
+            }
+        }
+
+      ~ confidential_instance_config (known after apply)
+
+      ~ network_interface {
+          ~ internal_ipv6_prefix_length = 0 -> (known after apply)
+          + ipv6_access_type            = (known after apply)
+          + ipv6_address                = (known after apply)
+          ~ name                        = "nic0" -> (known after apply)
+          ~ network                     = "https://www.googleapis.com/compute/v1/projects/qwiklabs-gcp-04-f85f86e7e3ad/global/networks/default" -> "default"
+          ~ network_ip                  = "10.142.0.2" -> (known after apply)
+          - queue_count                 = 0 -> null
+          ~ stack_type                  = "IPV4_ONLY" -> (known after apply)
+          ~ subnetwork                  = "https://www.googleapis.com/compute/v1/projects/qwiklabs-gcp-04-f85f86e7e3ad/regions/us-east1/subnetworks/default" -> (known after apply)
+          ~ subnetwork_project          = "qwiklabs-gcp-04-f85f86e7e3ad" -> (known after apply)
+            # (1 unchanged attribute hidden)
+        }
+
+      ~ reservation_affinity (known after apply)
+
+      ~ scheduling (known after apply)
+      - scheduling {
+          - automatic_restart           = true -> null
+          - min_node_cpus               = 0 -> null
+          - on_host_maintenance         = "MIGRATE" -> null
+          - preemptible                 = false -> null
+          - provisioning_model          = "STANDARD" -> null
+            # (1 unchanged attribute hidden)
+        }
+
+      - shielded_instance_config {
+          - enable_integrity_monitoring = true -> null
+          - enable_secure_boot          = false -> null
+          - enable_vtpm                 = true -> null
+        }
+
+      - timeouts {}
+    }
+
+  # module.instances.google_compute_instance.tf_instance_2 must be replaced
+-/+ resource "google_compute_instance" "tf_instance_2" {
+      + allow_stopping_for_update = true
+      ~ cpu_platform              = "Intel Broadwell" -> (known after apply)
+      ~ current_status            = "RUNNING" -> (known after apply)
+      - enable_display            = false -> null
+      ~ guest_accelerator         = [] -> (known after apply)
+      ~ id                        = "projects/qwiklabs-gcp-04-f85f86e7e3ad/zones/us-east1-c/instances/tf-instance-2" -> (known after apply)
+      ~ instance_id               = "5100649884684425649" -> (known after apply)
+      ~ label_fingerprint         = "vezUS-42LLM=" -> (known after apply)
+      - labels                    = {
+          - "goog-terraform-provisioned" = "true"
+        } -> null
+      - metadata                  = {
+          - "startup-script" = <<-EOT
+                #!/bin/bash
+            EOT
+        } -> null
+      ~ metadata_fingerprint      = "IFX76KD36V0=" -> (known after apply)
+      + min_cpu_platform          = (known after apply)
+        name                      = "tf-instance-2"
+      ~ project                   = "qwiklabs-gcp-04-f85f86e7e3ad" -> (known after apply)
+      - resource_policies         = [] -> null
+      ~ self_link                 = "https://www.googleapis.com/compute/v1/projects/qwiklabs-gcp-04-f85f86e7e3ad/zones/us-east1-c/instances/tf-instance-2" -> (known after apply)
+      - tags                      = [] -> null
+      ~ tags_fingerprint          = "42WmSpB8rSM=" -> (known after apply)
+        # (6 unchanged attributes hidden)
+
+      ~ boot_disk {
+          ~ device_name                = "persistent-disk-0" -> (known after apply)
+          + disk_encryption_key_sha256 = (known after apply)
+          + kms_key_self_link          = (known after apply)
+          ~ source                     = "https://www.googleapis.com/compute/v1/projects/qwiklabs-gcp-04-f85f86e7e3ad/zones/us-east1-c/disks/tf-instance-2" -> (known after apply)
+            # (3 unchanged attributes hidden)
+
+          ~ initialize_params {
+              ~ image                 = "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-12-bookworm-v20261102" -> "debian-cloud/debian-11" # forces replacement
+              ~ labels                = {} -> (known after apply)
+              - resource_manager_tags = {} -> null
+              ~ size                  = 10 -> (known after apply)
+              ~ type                  = "pd-standard" -> (known after apply)
+            }
+        }
+
+      ~ confidential_instance_config (known after apply)
+
+      ~ network_interface {
+          ~ internal_ipv6_prefix_length = 0 -> (known after apply)
+          + ipv6_access_type            = (known after apply)
+          + ipv6_address                = (known after apply)
+          ~ name                        = "nic0" -> (known after apply)
+          ~ network                     = "https://www.googleapis.com/compute/v1/projects/qwiklabs-gcp-04-f85f86e7e3ad/global/networks/default" -> "default"
+          ~ network_ip                  = "10.142.0.3" -> (known after apply)
+          - queue_count                 = 0 -> null
+          ~ stack_type                  = "IPV4_ONLY" -> (known after apply)
+          ~ subnetwork                  = "https://www.googleapis.com/compute/v1/projects/qwiklabs-gcp-04-f85f86e7e3ad/regions/us-east1/subnetworks/default" -> (known after apply)
+          ~ subnetwork_project          = "qwiklabs-gcp-04-f85f86e7e3ad" -> (known after apply)
+            # (1 unchanged attribute hidden)
+        }
+
+      ~ reservation_affinity (known after apply)
+
+      ~ scheduling (known after apply)
+      - scheduling {
+          - automatic_restart           = true -> null
+          - min_node_cpus               = 0 -> null
+          - on_host_maintenance         = "MIGRATE" -> null
+          - preemptible                 = false -> null
+          - provisioning_model          = "STANDARD" -> null
+            # (1 unchanged attribute hidden)
+        }
+
+      - shielded_instance_config {
+          - enable_integrity_monitoring = true -> null
+          - enable_secure_boot          = false -> null
+          - enable_vtpm                 = true -> null
+        }
+
+      - timeouts {}
+    }
+
+Plan: 2 to add, 0 to change, 2 to destroy.
+
+─────────────────────────────────────────────────────────────────────────────
+
+Note: You didn't use the -out option to save this plan, so Terraform can't
+guarantee to take exactly these actions if you run "terraform apply" now.
