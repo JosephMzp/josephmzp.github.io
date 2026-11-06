@@ -1,3 +1,8 @@
 .env
 node_modules/
 _site/
+
+# Ignorar estado y secretos de Terraform
+*.tfstate
+*.tfstate.backup
+.terraform/
